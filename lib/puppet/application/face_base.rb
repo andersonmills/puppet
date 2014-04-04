@@ -227,6 +227,7 @@ class Puppet::Application::FaceBase < Puppet::Application
     end
 
     result = @face.send(@action.name, *arguments)
+
     puts render(result, arguments) unless result.nil?
     status = true
 
