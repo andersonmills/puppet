@@ -97,12 +97,34 @@ class Puppet::Forge < Semantic::Dependency::Source
     return releases
   end
 
+  def fetch_release(input, version = nil)
+    name = input.tr('/', '-')
+
+    if version.nil?
+      uri = "/v3/modules/#{name}"
+    else
+      uri = "/v3/releases/#{name}-#{version}"
+    end
+
+    response = make_http_request(uri)
+
+    if response.code == '200'
+      response = PSON.parse(response.body)
+    else
+      raise ResponseError.new(:uri => URI.parse(@host).merge(uri), :input => input, :response => response)
+    end
+
+    release_data = version.nil? ? response['current_release'] : response
+
+    return ModuleRelease.new(self, release_data)
+  end
+
   def make_http_request(*args)
     @repository.make_http_request(*args)
   end
 
   class ModuleRelease < Semantic::Dependency::ModuleRelease
-    attr_reader :install_dir, :metadata
+    attr_reader :install_dir, :metadata, :data
 
     def initialize(source, data)
       @data = data
