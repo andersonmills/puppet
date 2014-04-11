@@ -95,31 +95,31 @@ module Puppet::ModuleTool::Generate
   end
 
   def interview(metadata)
-    puts "We need to create a metadata.json file for your module.  Please answer the"
-    puts "following questions; if the question is not applicable to your module, feel free"
+    # other code is dependent on the order in which the metadata is updated
+    puts "We need to create a metadata.json file for this module.  Please answer the"
+    puts "following questions; if the question is not applicable to this module, feel free"
     puts "to leave it blank."
     puts
     puts "Puppet uses Semantic Versioning (semver.org) to version modules."
-    puts "What version is your module?  [#{metadata.to_hash['version']}]"
+    puts "What version is this module?  [#{metadata.to_hash['version']}]"
     metadata.update ask('version', metadata.to_hash['version'])
     puts
-    puts "What is the name of this module's author (who gets the credit/blame for this"
-    puts "module)?  [#{metadata.to_hash['author']}]"
+    puts "Who wrote this module?  [#{metadata.to_hash['author']}]"
     metadata.update ask('author', metadata.to_hash['author'])
     puts
-    puts "What license does your module code fall under?  [#{metadata.to_hash['license']}]"
+    puts "What license does this module code fall under?  [#{metadata.to_hash['license']}]"
     metadata.update ask('license', metadata.to_hash['license'])
     puts
-    puts "How would you describe your module in a single sentence?"
+    puts "How would you describe this module in a single sentence?"
     metadata.update ask('summary', metadata.to_hash['summary'])
     puts
-    puts "Where is your module's source code repository?"
+    puts "Where is this module's source code repository?"
     metadata.update ask('source', metadata.to_hash['source'])
     puts
-    puts "Where can others go to learn more about your module?"
+    puts "Where can others go to learn more about this module?"
     metadata.update ask('project_page', metadata.to_hash['project_page'])
     puts
-    puts "Where can others go to file issues about your module?"
+    puts "Where can others go to file issues about this module?"
     metadata.update ask('issues_url', metadata.to_hash['issues_url'])
   end
 

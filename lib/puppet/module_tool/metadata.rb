@@ -1,6 +1,7 @@
 require 'puppet/util/methodhelper'
 require 'puppet/module_tool'
 require 'puppet/network/format_support'
+require 'uri'
 
 module Puppet::ModuleTool
 
@@ -8,8 +9,6 @@ module Puppet::ModuleTool
   # @api private
   class Metadata
     include Puppet::Network::FormatSupport
-
-    attr_reader :module_name
 
     def initialize
       @data = {
@@ -21,6 +20,10 @@ module Puppet::ModuleTool
         'source'       => 'UNKNOWN',
         'dependencies' => []
       }
+    end
+
+    def module_name
+      @module_name
     end
 
     # Returns a filesystem-friendly version of this module name.
@@ -40,16 +43,11 @@ module Puppet::ModuleTool
     def update(data)
       data['author'] ||= @data['author'] unless @data['author'] == 'UNKNOWN'
 
-      if data['name']
-        validate_name(data['name'])
-        author, name = data['name'].split(/[-\/]/, 2)
-        @module_name = name
-        data['author'] ||= author
-      end
+      process_name(data) if data['name']
+      process_version(data) if data['version']
+      process_source(data) if data['source']
 
-      data['version'] && validate_version(data['version'])
       @data.merge!(data)
-
       return self
     end
 
@@ -62,7 +60,37 @@ module Puppet::ModuleTool
     end
     alias :to_data_hash :to_hash
 
+    def method_missing(name, *args)
+      return @data[name.to_s] if @data.key? name.to_s
+      super
+    end
+
     private
+
+    def process_name(data)
+      validate_name(data['name'])
+      author, @module_name = data['name'].split(/[-\/]/, 2)
+      data['author'] ||= author
+    end
+
+    def process_version(data)
+      validate_version(data['version'])
+    end
+
+    def process_source(data)
+      source_uri = URI.parse(data['source'])
+
+      #if source is github, then can set project_page and issues_url 
+      if source_uri.host =~ /^(www\.)?github\.com$/
+        source_uri.scheme = 'https'
+        source_uri.path.sub!(/\.git$/, '')
+        data['project_page'] = source_uri.to_s
+        data['issues_url'] = source_uri.to_s.sub(/\/$/, '') + '/issues'
+      end
+
+    rescue URI::Error
+      return
+    end
 
     # Validates that the given module name is both namespaced and well-formed.
     def validate_name(name)
@@ -93,3 +121,4 @@ module Puppet::ModuleTool
     end
   end
 end
+
