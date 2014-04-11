@@ -113,13 +113,14 @@ module Puppet::ModuleTool::Generate
     puts "How would you describe this module in a single sentence?"
     metadata.update ask('summary', metadata.to_hash['summary'])
     puts
-    puts "Where is this module's source code repository?"
+    #puts "Where is this module's source code repository?  [#{metadata.to_hash['source']}]" 
+    puts "Where is this module's source code repository?" 
     metadata.update ask('source', metadata.to_hash['source'])
     puts
-    puts "Where can others go to learn more about this module?"
+    puts "Where can others go to learn more about this module?  [#{metadata.to_hash['project_page']}]"
     metadata.update ask('project_page', metadata.to_hash['project_page'])
     puts
-    puts "Where can others go to file issues about this module?"
+    puts "Where can others go to file issues about this module?  [#{metadata.to_hash['issues_url']}]"
     metadata.update ask('issues_url', metadata.to_hash['issues_url'])
   end
 

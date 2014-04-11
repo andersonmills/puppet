@@ -70,6 +70,7 @@ module Puppet::ModuleTool
     def process_name(data)
       validate_name(data['name'])
       author, @module_name = data['name'].split(/[-\/]/, 2)
+      # data['source'] = "https://github.com/" + URI.parse(data['name']).to_s
       data['author'] ||= author
     end
 
