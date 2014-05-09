@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+#include Puppet::ModuleTool::Requirements
+
 Puppet::Face.define(:module, '1.0.0') do
   action(:list) do
     summary "List installed modules"
@@ -73,6 +75,7 @@ Puppet::Face.define(:module, '1.0.0') do
 
       output = ''
 
+      warn_unmet_requirements(environment)
       warn_unmet_dependencies(environment)
 
       environment.modulepath.each do |path|
@@ -103,6 +106,68 @@ Puppet::Face.define(:module, '1.0.0') do
     end
   end
 
+  # need to convert this to use methods in Puppet::ModuleTool::Requirements
+  def warn_unmet_requirements(environment)
+    environment.modules.sort_by {|mod| mod.name}.each do |mod|
+      if mod.has_metadata?
+        data = mod.metadata
+
+        # look for puppet, facter, and hiera
+
+        # unless Puppet::ModuleTool.meets_all_pe_requirements(data)
+        unless data['requirements'].nil?
+          req = data['requirements'].detect do |x|
+            x['name'].upcase == 'PUPPET' # &&
+            # !Puppet::ModuleTool.match_pe_range(x['version_requirement'])
+          end
+
+          msg = "'#{mod.name}' (v#{mod.version})"
+          msg << " requires Puppet #{req['version_requirement']}"
+
+          Puppet.warning msg.chomp
+        end
+
+        # unless Puppet::ModuleTool.meets_all_pe_requirements(data)
+        unless data['requirements'].nil?
+          req = data['requirements'].detect do |x|
+            x['name'].upcase == 'HIERA' # &&
+            # !Puppet::ModuleTool.match_pe_range(x['version_requirement'])
+          end
+
+          msg = "'#{mod.name}' (v#{mod.version})"
+          msg << " requires Hiera #{req['version_requirement']}"
+
+          Puppet.warning msg.chomp
+        end
+
+        # unless Puppet::ModuleTool.meets_all_pe_requirements(data)
+        unless data['requirements'].nil?
+          req = data['requirements'].detect do |x|
+            x['name'].upcase == 'FACTER' # &&
+            # !Puppet::ModuleTool.match_pe_range(x['version_requirement'])
+          end
+
+          msg = "'#{mod.name}' (v#{mod.version})"
+          msg << " requires Facter #{req['version_requirement']}"
+
+          Puppet.warning msg.chomp
+        end
+
+        # unless Puppet::ModuleTool.meets_all_pe_requirements(data)
+        # unless data['requirements'].nil?
+        #   req = data['requirements'].detect do |x|
+        #     x['name'].upcase == 'PE' # &&
+        #     # !Puppet::ModuleTool.match_pe_range(x['version_requirement'])
+        #   end
+
+        #   msg = "'#{mod.name}' (v#{mod.version})"
+        #   msg << " requires Puppet Enterprise #{req['version_requirement']}"
+
+        #   Puppet.warning msg.chomp
+        # end
+      end
+    end
+  end
   def warn_unmet_dependencies(environment)
     error_types = {
       :non_semantic_version => {
