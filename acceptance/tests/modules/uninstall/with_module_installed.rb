@@ -8,9 +8,9 @@ step "Setup"
 apply_manifest_on master, <<-PP
 file {
   [
-    '#{master['distmoduledir']}/crakorn',
+    "#{master['distmoduledir']}/crakorn",
   ]: ensure => directory;
-  '#{master['distmoduledir']}/crakorn/metadata.json':
+  "#{master['distmoduledir']}/crakorn/metadata.json":
     content => '{
       "name": "jimmy/crakorn",
       "version": "0.4.0",
