@@ -1,8 +1,8 @@
 test_name "puppet module uninstall (with module installed)"
 
-teardown do
-  on master, "rm -rf #{master['distmoduledir']}/crakorn"
-end
+#teardown do
+#  on master, "rm -rf #{master['distmoduledir']}/crakorn"
+#end
 
 step "Setup"
 apply_manifest_on master, <<-PP
